@@ -101,16 +101,15 @@ html, body {
     margin-right: auto;
     padding: 20px;
     display: grid;
-    grid-template-columns: repeat(24, 1fr); /* Adjust number of columns as needed */
-    gap: 10px; /* Space between grid items */
+    grid-template-columns: repeat(24, 1fr);
+    gap: 10px;
     border: 2px dotted white;
     overflow-x: auto;
     grid-row-gap: 40px;
 }
 
-/* Grid container for temperatures */
 #select_temp {
-    display: contents; /* Allows the grid container to occupy no space */
+    display: contents;
 }
 
 #select_time {
@@ -118,7 +117,6 @@ html, body {
     margin-top: 100px;
 }
 
-/* Style for individual cells */
 .cell {
     display: flex;
     justify-content: center;
@@ -126,9 +124,18 @@ html, body {
     padding: 10px;
     color: white;
     text-align: center;
-    border-right-color: white;
+    border-bottom: 2px solid white;
+    border-right: 2px solid white;
 }
 
+
+.cell:nth-child(4n) {
+    border-right: none;
+}
+
+.cell:nth-last-child(-n + 4) {
+    border-bottom: none;
+}
 #second_page {
     background-color: dodgerblue;
     background-size: cover;

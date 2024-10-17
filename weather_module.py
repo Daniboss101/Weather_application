@@ -1,5 +1,6 @@
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify,Flask
 from datetime import datetime, timedelta
+import os
 import requests
 import socket
 from urllib.parse import quote_plus
@@ -7,7 +8,8 @@ from historical_weather_date import function_call
 
 weather_blueprint = Blueprint('weather', __name__)
 
-
+api_key = os.getenv('API_KEY')
+time_zone_key = os.getenv('TIMEZONE_KEY')
 def constructApiUrl(days, location, parameters, format='json'):
     base_url = "https://api.meteomatics.com"
     start_date = datetime.utcnow()
@@ -19,7 +21,6 @@ def constructApiUrl(days, location, parameters, format='json'):
 
 def constructLocationApiUrl(address):
     base_url = "https://geocode.maps.co/search"
-    api_key = "669331b0ea8b7684602117lgyf7be29"
     encoded_address = quote_plus(address)
     print(f"{base_url}?q={encoded_address}&api_key={api_key}")
     return f"{base_url}?q={encoded_address}&api_key={api_key}"
@@ -27,8 +28,7 @@ def constructLocationApiUrl(address):
 
 def constructTimeZoneApiUrl(lat, lon, timestamp):
     base_url = "https://maps.googleapis.com/maps/api/timezone/json"
-    api_key = "AIzaSyBQtYCOO5-pVAJ9Q-800s3hs5LwKLfIum0"
-    return f"{base_url}?location={lat},{lon}&timestamp={timestamp}&key={api_key}"
+    return f"{base_url}?location={lat},{lon}&timestamp={timestamp}&key={time_zone_key}"
 
 
 def fetchWeatherData(days, location, parameters):
@@ -82,7 +82,9 @@ def fetch_date(lat, lon, timestamp):
         response = requests.get(apiUrl)
         response.raise_for_status()
         data = response.json()
+        print(f'fetch data : {data}')
         return data
+
     except requests.exceptions.RequestException as e:
         print(f"Error fetching timezone data: {e}")
         return None
@@ -116,30 +118,35 @@ def get_location():
             timezone_data = fetch_date(latitude, longitude, timestamp)
             if timezone_data:
                 print(f"Fetched timezone data: {timezone_data}")
-                utc_offset = timezone_data['rawOffset'] + timezone_data['dstOffset']
-                print(f"Fetched timezone offset: {utc_offset}")
-                local_time = convert_UTC_to_LocalTime(datetime.utcnow(), utc_offset)
-                response_data = {
-                    "local_time": local_time.strftime("%Y-%m-%d %H:%M:%S"),
-                    "timezone_name": timezone_data['timeZoneName'],
-                    "utc_offset": utc_offset,
-                    "lat": latitude, "lon": longitude
-                }
-                days = 7
-                parameters = "t_2m:C,weather_symbol_1h:idx,t_max_2m_24h:C,t_min_2m_24h:C"
-                weather_data = fetchWeatherData(days, coordinates, parameters)
-                if weather_data:
-                    return jsonify(
-                        {
+                # Check for expected keys before accessing them
+                if 'rawOffset' in timezone_data and 'dstOffset' in timezone_data:
+                    utc_offset = timezone_data['rawOffset'] + timezone_data['dstOffset']
+                    print(f"Fetched timezone offset: {utc_offset}")
+                    local_time = convert_UTC_to_LocalTime(datetime.utcnow(), utc_offset)
+
+                    response_data = {
+                        "local_time": local_time.strftime("%Y-%m-%d %H:%M:%S"),
+                        "timezone_name": timezone_data['timeZoneName'],
+                        "utc_offset": utc_offset,
+                        "lat": latitude,
+                        "lon": longitude
+                    }
+
+                    days = 7
+                    parameters = "t_2m:C,weather_symbol_1h:idx,t_max_2m_24h:C,t_min_2m_24h:C"
+                    weather_data = fetchWeatherData(days, coordinates, parameters)
+                    if weather_data:
+                        return jsonify({
                             "weather_data": weather_data,
                             "local_time": response_data['local_time'],
                             "utc_offset": response_data['utc_offset'],
                             "lat": latitude,
                             "lon": longitude
-                        }
-                    )
+                        })
+                    else:
+                        print("Error: Weather data not found.")
                 else:
-                    print("Error: Weather data not found.")
+                    print("Error: Expected keys 'rawOffset' or 'dstOffset' not found in timezone data.")
             else:
                 print("Error: Timezone data not found.")
         else:
