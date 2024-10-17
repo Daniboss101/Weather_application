@@ -124,18 +124,9 @@ html, body {
     padding: 10px;
     color: white;
     text-align: center;
-    border-bottom: 2px solid white;
-    border-right: 2px solid white;
 }
 
 
-.cell:nth-child(4n) {
-    border-right: none;
-}
-
-.cell:nth-last-child(-n + 4) {
-    border-bottom: none;
-}
 #second_page {
     background-color: dodgerblue;
     background-size: cover;
