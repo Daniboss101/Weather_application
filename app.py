@@ -28,6 +28,9 @@ app.register_blueprint(forecast_blueprint)
 def index():
     app.logger.info('Processing default request')
     return redirect('/weather')
-
+    
+@app.route('/static/<path:filename>')
+def static_files(filename):
+    return send_from_directory(os.path.join(app.root_path, 'static'), filename)
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
