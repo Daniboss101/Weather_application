@@ -127,6 +127,8 @@ export function updateCurrentDayOfWeek(selectedDayOfWeek) {
 export function displayCurrentTimeAndTemperature() {
 
 try {
+        console.log(document.getElementById('myDiv').dataset.weather);
+
         const weatherData = appState.weatherData || JSON.parse(document.getElementById('myDiv').dataset.weather);
 
         const temperatureElement = document.getElementById('temperature');
