@@ -91,9 +91,10 @@
     </div>
 </div>
 <div id="myDiv" data-weather='{{ weather_data | tojson }}'></div>
-<script src="{{ url_for('static', filename='app.js') }}" type="module"></script>
-<script src="{{ url_for('static', filename='csv_reading.js') }}" type="module"></script>
-<script src="{{ url_for('static', filename='weather_prediction.js') }}" type="module"></script>
+<script src="/static/app.js" type="module"></script>
+<script src="/static/csv_reading.js" type="module"></script>
+<script src="/static/weather_prediction.js" type="module"></script>
+
 
 </body>
 </html>
