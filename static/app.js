@@ -208,6 +208,8 @@ if (weatherData && Array.isArray(weatherData.data)) {
 export function displayTimeAndTempOfThatDay() {
     try {
         const weatherData = appState.weatherData || JSON.parse(document.getElementById('myDiv').dataset.weather);
+        console.log(document.getElementById('myDiv').dataset.weather);
+
         const timeElement = document.getElementById('select_time');
         const tempElement = document.getElementById('select_temp');
 
